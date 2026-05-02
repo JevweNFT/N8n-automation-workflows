@@ -1,0 +1,1379 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "38e88f27-3f8d-4bef-be05-7e1eb7784e25",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "19d2582d-de16-44c0-a4ac-dc065c851b12",
+      "name": "Webhook",
+      "webhookId": "38e88f27-3f8d-4bef-be05-7e1eb7784e25"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.body.submission.questions[4].value[0].url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4d830359-8586-4407-8584-840df4c86f5d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "46f16c67e6f93014640cb11414258f45"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "c7a6ccca-d959-4b29-b9a8-d489a4c92158",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "879c6f31-8eca-41be-8fb1-4036bb37fbc2",
+              "name": "fields.Name",
+              "value": "={{ $json.fields.Name.split(' ')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        32
+      ],
+      "id": "9a4a4e71-18e4-4d22-bbd9-9a15c7826cde",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.submission.questions[1].value }}",
+        "subject": "Gymn registeration",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n  <title>Gym Subscription Confirmation</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, sans-serif;\">\n\n  <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f4f4f4; padding: 40px 0;\">\n    <tr>\n      <td align=\"center\">\n        <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#ffffff; border-radius:10px; overflow:hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);\">\n\n          <!-- Header -->\n          <tr>\n            <td style=\"background-color:#1a1a2e; padding: 40px 0; text-align:center;\">\n              <h1 style=\"margin:0; color:#e94560; font-size:42px; letter-spacing:4px; text-transform:uppercase;\">GYM</h1>\n              <p style=\"margin:6px 0 0; color:#a0a0b0; font-size:13px; letter-spacing:2px; text-transform:uppercase;\">Fitness & Performance Center</p>\n            </td>\n          </tr>\n\n          <!-- Banner -->\n          <tr>\n            <td style=\"background-color:#e94560; padding: 16px; text-align:center;\">\n              <p style=\"margin:0; color:#ffffff; font-size:15px; letter-spacing:1px; text-transform:uppercase; font-weight:bold;\">🎉 You Have Successfully Registered!</p>\n            </td>\n          </tr>\n\n          <!-- Body -->\n          <tr>\n            <td style=\"padding: 40px 50px;\">\n\n              <p style=\"color:#333333; font-size:16px; margin:0 0 10px;\">Dear <strong>{{ $json.fields.Name }}</strong>,</p>\n\n              <p style=\"color:#555555; font-size:15px; line-height:1.7; margin:0 0 30px;\">\n                Welcome to the GYM family! Your membership has been successfully activated. Here are your subscription details:\n              </p>\n\n              <!-- Details Card -->\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-radius:8px; border: 1px solid #e0e0e0; overflow:hidden; margin-bottom:30px;\">\n\n                <!-- Start Date -->\n                <tr>\n                  <td style=\"padding:16px 20px; background-color:#f9f9f9; border-bottom:1px solid #e0e0e0;\">\n                    <p style=\"margin:0; color:#888888; font-size:12px; text-transform:uppercase; letter-spacing:1px;\">📅 Start Date</p>\n                    <p style=\"margin:6px 0 0; color:#1a1a2e; font-size:18px; font-weight:bold;\">{{ $('Create a record').item.json.fields['Start date'] }}</p>\n                  </td>\n                </tr>\n\n                <!-- End Date -->\n                <tr>\n                  <td style=\"padding:16px 20px; background-color:#fff5f6; border-bottom:1px solid #e0e0e0;\">\n                    <p style=\"margin:0; color:#888888; font-size:12px; text-transform:uppercase; letter-spacing:1px;\">📅 End Date</p>\n                    <p style=\"margin:6px 0 0; color:#e94560; font-size:18px; font-weight:bold;\">{{ $('Create a record').item.json.fields['end date'] }}</p>\n                  </td>\n                </tr>\n\n                <!-- Plan -->\n                <tr>\n                  <td style=\"padding:16px 20px; background-color:#f9f9f9;\">\n                    <p style=\"margin:0; color:#888888; font-size:12px; text-transform:uppercase; letter-spacing:1px;\">🏋️ Subscription Plan</p>\n                    <p style=\"margin:6px 0 0; color:#1a1a2e; font-size:18px; font-weight:bold;\">{{ $('HTTP Request').item.json.body.submission.questions[2].value }}</p>\n                  </td>\n                </tr>\n\n              </table>\n\n              <p style=\"color:#555555; font-size:15px; line-height:1.7; margin:0 0 10px;\">\n                We're excited to be part of your fitness journey. If you have any questions, don't hesitate to contact us.\n              </p>\n\n              <p style=\"color:#333333; font-size:15px; font-weight:bold; margin:20px 0 0;\">See you at the gym! 💪</p>\n\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"background-color:#1a1a2e; padding: 24px 50px; text-align:center;\">\n              <p style=\"margin:0; color:#a0a0b0; font-size:12px;\">© 2026 GYM Fitness & Performance Center. All rights reserved.</p>\n              <p style=\"margin:8px 0 0; color:#e94560; font-size:12px;\"></p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        32
+      ],
+      "id": "9e140119-bd3a-4ce1-be1f-7b633e7b4897",
+      "name": "Send a message",
+      "webhookId": "b32b080b-7144-4be6-a2e3-4efe0075df11",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "szjDXTgBn28IRJGa",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 6
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        32
+      ],
+      "id": "558293bf-76c2-4ac8-b67e-a63c6202d804",
+      "name": "Wait",
+      "webhookId": "cbdc5ff2-d6de-4bb0-9086-c823fbfd3239"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        320
+      ],
+      "id": "2cc2df8e-e6bb-4fc8-9088-9facf3e6031c",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appDgrX91zVJM39ap",
+          "mode": "list",
+          "cachedResultName": "Gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCw8OLOzPicnkLZ",
+          "mode": "list",
+          "cachedResultName": "gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap/tblCw8OLOzPicnkLZ"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        320
+      ],
+      "id": "ccae9176-b605-45c7-bf8c-db6230c652f6",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "kN3O8PfTd9z0JRe4",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "67a7d6ba-35d8-409e-b7f2-2d8c8224e6a5",
+              "leftValue": "={{ $json.fields['end date'] }}",
+              "rightValue": "={{ $now.plus(3, 'days').format('yyyy-MM-dd') }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        528,
+        320
+      ],
+      "id": "01813dde-3436-4260-85e3-3bfe11bc139a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0912e662-e5e4-4d88-9408-6ea788bdb4a9",
+              "name": "fields.Name",
+              "value": "={{ $json.fields['Name'].split(' ')[1] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        736,
+        224
+      ],
+      "id": "417c3b74-307c-49bc-a082-a5554e2dc419",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('If').item.json.fields['Email address'] }}",
+        "subject": "Your subscription will expire soon",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n  <title>Membership Expiring Soon</title>\n  <link href=\"https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap\" rel=\"stylesheet\"/>\n  <style>\n    * { margin: 0; padding: 0; box-sizing: border-box; }\n\n    body {\n      background-color: #0a0a0a;\n      font-family: 'DM Sans', sans-serif;\n      color: #f0f0f0;\n      -webkit-font-smoothing: antialiased;\n    }\n\n    .email-wrapper {\n      max-width: 620px;\n      margin: 0 auto;\n      background: #0a0a0a;\n    }\n\n    /* HERO */\n    .hero {\n      background: linear-gradient(160deg, #111 0%, #1a1a1a 60%, #1a1500 100%);\n      padding: 48px 40px 36px;\n      text-align: center;\n      border-bottom: 2px solid #f5a623;\n      position: relative;\n      overflow: hidden;\n    }\n\n    .hero::before {\n      content: '';\n      position: absolute;\n      top: -60px; left: -60px;\n      width: 220px; height: 220px;\n      border-radius: 50%;\n      background: radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%);\n    }\n\n    .hero::after {\n      content: '';\n      position: absolute;\n      bottom: -40px; right: -40px;\n      width: 160px; height: 160px;\n      border-radius: 50%;\n      background: radial-gradient(circle, rgba(245,166,35,0.06) 0%, transparent 70%);\n    }\n\n    .logo-mark {\n      display: inline-block;\n      width: 56px; height: 56px;\n      background: #f5a623;\n      border-radius: 12px;\n      line-height: 56px;\n      font-size: 28px;\n      margin-bottom: 20px;\n      transform: rotate(-6deg);\n    }\n\n    .hero h1 {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 52px;\n      letter-spacing: 3px;\n      color: #ffffff;\n      line-height: 1;\n      margin-bottom: 8px;\n    }\n\n    .hero h1 span { color: #f5a623; }\n\n    .hero .tagline {\n      font-size: 13px;\n      font-weight: 500;\n      letter-spacing: 4px;\n      text-transform: uppercase;\n      color: #888;\n      margin-top: 10px;\n    }\n\n    /* BADGE */\n    .badge-bar {\n      background: #f5a623;\n      padding: 14px 40px;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n    }\n\n    .badge-bar span {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 18px;\n      letter-spacing: 2px;\n      color: #0a0a0a;\n    }\n\n    /* COUNTDOWN */\n    .countdown-bar {\n      background: #1a1a1a;\n      border-bottom: 1px solid #222;\n      padding: 28px 40px;\n      text-align: center;\n    }\n\n    .countdown-bar p {\n      font-size: 12px;\n      letter-spacing: 3px;\n      text-transform: uppercase;\n      color: #666;\n      margin-bottom: 16px;\n    }\n\n    .countdown-boxes {\n      display: flex;\n      justify-content: center;\n      gap: 12px;\n    }\n\n    .count-box {\n      background: #111;\n      border: 1px solid #2a2a2a;\n      border-top: 3px solid #f5a623;\n      border-radius: 8px;\n      padding: 16px 24px;\n      min-width: 80px;\n    }\n\n    .count-number {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 42px;\n      color: #f5a623;\n      letter-spacing: 2px;\n      line-height: 1;\n    }\n\n    .count-label {\n      font-size: 10px;\n      letter-spacing: 2px;\n      text-transform: uppercase;\n      color: #555;\n      margin-top: 4px;\n    }\n\n    /* BODY */\n    .body {\n      padding: 40px 40px 32px;\n      background: #111;\n    }\n\n    .greeting {\n      font-size: 22px;\n      font-weight: 600;\n      color: #ffffff;\n      margin-bottom: 12px;\n    }\n\n    .greeting span { color: #f5a623; }\n\n    .intro {\n      font-size: 15px;\n      color: #aaa;\n      line-height: 1.7;\n      margin-bottom: 32px;\n    }\n\n    /* STATS CARD */\n    .stats-card {\n      background: #1a1a1a;\n      border: 1px solid #2a2a2a;\n      border-left: 4px solid #f5a623;\n      border-radius: 12px;\n      padding: 24px 28px;\n      margin-bottom: 32px;\n    }\n\n    .stats-card h3 {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 13px;\n      letter-spacing: 3px;\n      color: #f5a623;\n      text-transform: uppercase;\n      margin-bottom: 20px;\n    }\n\n    .stat-row {\n      display: flex;\n      justify-content: space-between;\n      align-items: center;\n      padding: 12px 0;\n      border-bottom: 1px solid #222;\n    }\n\n    .stat-row:last-child {\n      border-bottom: none;\n      padding-bottom: 0;\n    }\n\n    .stat-label {\n      font-size: 12px;\n      font-weight: 500;\n      letter-spacing: 1px;\n      text-transform: uppercase;\n      color: #666;\n    }\n\n    .stat-value {\n      font-size: 15px;\n      font-weight: 600;\n      color: #f0f0f0;\n    }\n\n    .stat-value.highlight {\n      color: #f5a623;\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 18px;\n      letter-spacing: 1px;\n    }\n\n    .status-pill {\n      background: rgba(245,166,35,0.12);\n      border: 1px solid rgba(245,166,35,0.3);\n      color: #f5a623;\n      font-size: 12px;\n      font-weight: 600;\n      letter-spacing: 2px;\n      text-transform: uppercase;\n      padding: 4px 12px;\n      border-radius: 20px;\n    }\n\n    /* ALERT BOX */\n    .alert-box {\n      background: linear-gradient(135deg, #1a1500, #1f1a00);\n      border: 1px solid #2e2600;\n      border-radius: 10px;\n      padding: 20px 24px;\n      margin-bottom: 32px;\n      display: flex;\n      gap: 16px;\n      align-items: flex-start;\n    }\n\n    .alert-icon { font-size: 28px; flex-shrink: 0; }\n\n    .alert-text h4 {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 16px;\n      letter-spacing: 2px;\n      color: #f5a623;\n      margin-bottom: 6px;\n    }\n\n    .alert-text p {\n      font-size: 13px;\n      color: #888;\n      line-height: 1.6;\n    }\n\n    /* BENEFITS */\n    .benefits-section { margin-bottom: 36px; }\n\n    .section-title {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 22px;\n      letter-spacing: 2px;\n      color: #ffffff;\n      margin-bottom: 16px;\n      border-bottom: 1px solid #222;\n      padding-bottom: 10px;\n    }\n\n    .benefit-item {\n      display: flex;\n      align-items: flex-start;\n      gap: 14px;\n      padding: 12px 0;\n      border-bottom: 1px solid #1a1a1a;\n    }\n\n    .benefit-item:last-child { border-bottom: none; }\n\n    .benefit-icon {\n      width: 36px; height: 36px;\n      background: rgba(245,166,35,0.1);\n      border-radius: 8px;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      font-size: 16px;\n      flex-shrink: 0;\n    }\n\n    .benefit-text {\n      font-size: 14px;\n      color: #bbb;\n      line-height: 1.5;\n      padding-top: 8px;\n    }\n\n    /* PRICE WARNING */\n    .price-warning {\n      background: rgba(200,241,53,0.05);\n      border: 1px solid rgba(200,241,53,0.15);\n      border-radius: 8px;\n      padding: 14px 18px;\n      margin-bottom: 32px;\n      text-align: center;\n    }\n\n    .price-warning p {\n      font-size: 13px;\n      color: #aaa;\n      line-height: 1.6;\n    }\n\n    .price-warning strong { color: #c8f135; }\n\n    /* CTA */\n    .cta-section {\n      text-align: center;\n      margin-bottom: 36px;\n      background: linear-gradient(135deg, #0f1a0f, #141f14);\n      border: 1px solid #1e2e1e;\n      border-radius: 12px;\n      padding: 32px 28px;\n    }\n\n    .cta-section h3 {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 26px;\n      letter-spacing: 2px;\n      color: #ffffff;\n      margin-bottom: 8px;\n    }\n\n    .cta-section p {\n      font-size: 13px;\n      color: #888;\n      margin-bottom: 24px;\n      line-height: 1.6;\n    }\n\n    .cta-btn {\n      display: inline-block;\n      background: #c8f135;\n      color: #0a0a0a;\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 20px;\n      letter-spacing: 3px;\n      text-decoration: none;\n      padding: 18px 48px;\n      border-radius: 6px;\n      margin-bottom: 12px;\n    }\n\n    .cta-note {\n      font-size: 11px;\n      color: #555;\n      margin-top: 10px;\n    }\n\n    /* SUPPORT */\n    .support {\n      font-size: 13px;\n      color: #666;\n      line-height: 1.8;\n      margin-bottom: 32px;\n      text-align: center;\n    }\n\n    .support a { color: #c8f135; text-decoration: none; }\n\n    /* FOOTER */\n    .footer {\n      background: #0a0a0a;\n      border-top: 1px solid #1a1a1a;\n      padding: 28px 40px;\n      text-align: center;\n    }\n\n    .footer-logo {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 20px;\n      letter-spacing: 3px;\n      color: #333;\n      margin-bottom: 12px;\n    }\n\n    .footer p {\n      font-size: 11px;\n      color: #444;\n      line-height: 1.8;\n    }\n\n    .footer a { color: #666; text-decoration: none; }\n    .divider { color: #333; margin: 0 6px; }\n  </style>\n</head>\n<body>\n<div class=\"email-wrapper\">\n\n  <!-- HERO -->\n  <div class=\"hero\">\n    <div class=\"logo-mark\">⏳</div>\n    <h1>EXPIRING<br/><span>IN 3 DAYS</span></h1>\n    <p class=\"tagline\">World Flight Gym · Member Portal</p>\n  </div>\n\n  <!-- BADGE -->\n  <div class=\"badge-bar\">\n    <span>⚠️ ACTION REQUIRED — RENEW BEFORE YOU LOSE ACCESS</span>\n  </div>\n\n  <!-- COUNTDOWN -->\n  <div class=\"countdown-bar\">\n    <p>Your membership expires in</p>\n    <div class=\"countdown-boxes\">\n      <div class=\"count-box\">\n        <div class=\"count-number\">3</div>\n        <div class=\"count-label\">Days</div>\n      </div>\n      <div class=\"count-box\">\n        <div class=\"count-number\">00</div>\n        <div class=\"count-label\">Hours</div>\n      </div>\n      <div class=\"count-box\">\n        <div class=\"count-number\">00</div>\n        <div class=\"count-label\">Mins</div>\n      </div>\n    </div>\n  </div>\n\n  <!-- BODY -->\n  <div class=\"body\">\n\n    <p class=\"greeting\">Hey <span>{{ $('If').item.json.fields.Name }}</span>,</p>\n    <p class=\"intro\">\n      This is a friendly heads-up — your World Flight Gym membership is expiring\n      in just <strong style=\"color:#f5a623\">3 days</strong>. Don't let your progress\n      come to a halt. Renew now and keep the momentum going! 💪\n    </p>\n\n    <!-- STATS CARD -->\n    <div class=\"stats-card\">\n      <h3>📋 Your Membership Details</h3>\n\n      <div class=\"stat-row\">\n        <span class=\"stat-label\">Member Name</span>\n        <span class=\"stat-value\">{{ $('If').item.json.fields.Name }}</span>\n      </div>\n\n      <div class=\"stat-row\">\n        <span class=\"stat-label\">Current Plan</span>\n        <span class=\"stat-value\">{{ $('If').item.json.fields.Subscription }}</span>\n      </div>\n\n      <div class=\"stat-row\">\n        <span class=\"stat-label\">Expiry Date</span>\n        <span class=\"stat-value highlight\">{{ $('If').item.json.fields['end date'] }}</span>\n      </div>\n\n      <div class=\"stat-row\">\n        <span class=\"stat-label\">Status</span>\n        <span class=\"status-pill\">⚠️ EXPIRING SOON</span>\n      </div>\n    </div>\n\n    <!-- ALERT -->\n    <div class=\"alert-box\">\n      <div class=\"alert-icon\">🔔</div>\n      <div class=\"alert-text\">\n        <h4>DON'T LOSE YOUR STREAK</h4>\n        <p>Once your membership expires, access to all facilities, classes, and the member app will be suspended immediately. Renew before <strong style=\"color:#f5a623\">{{ $('If').item.json.fields['end date'] }}</strong> to avoid any interruption.</p>\n      </div>\n    </div>\n\n    <!-- BENEFITS -->\n    <div class=\"benefits-section\">\n      <h2 class=\"section-title\">KEEP WHAT YOU'VE GOT</h2>\n\n      <div class=\"benefit-item\">\n        <div class=\"benefit-icon\">🏋️</div>\n        <p class=\"benefit-text\">Unlimited access to all gym facilities & equipment — 24/7</p>\n      </div>\n\n      <div class=\"benefit-item\">\n        <div class=\"benefit-icon\">🧘</div>\n        <p class=\"benefit-text\">Group fitness classes & personal training sessions</p>\n      </div>\n\n      <div class=\"benefit-item\">\n        <div class=\"benefit-icon\">📱</div>\n        <p class=\"benefit-text\">Full access to app, workout tracking & progress tools</p>\n      </div>\n\n      <div class=\"benefit-item\">\n        <div class=\"benefit-icon\">🏷️</div>\n        <p class=\"benefit-text\">Exclusive member discounts, promotions & early event access</p>\n      </div>\n    </div>\n\n    <!-- PRICE WARNING -->\n    <div class=\"price-warning\">\n      <p>🔒 <strong>Renew now and lock in your current rate.</strong><br/>\n      Prices may increase for new sign-ups — existing members who renew keep their plan pricing.</p>\n    </div>\n\n    <!-- CTA -->\n    <div class=\"cta-section\">\n      <h3>RENEW IN UNDER 2 MINUTES 🚀</h3>\n      <p>Click below to fill out your renewal form.<br/>Your membership will be extended immediately.</p>\n      <a href=\"https://forms.fillout.com/t/cGxTECFjNMus?email={{ $('Search records').item.json.fields['Email address'] }}&name={{ $('If').item.json.fields.Name }}&plan={{ $('If').item.json.fields.Subscription }}\" class=\"cta-btn\">\n        🔄 RENEW MY MEMBERSHIP NOW\n      </a>\n      <p class=\"cta-note\">Takes less than 2 minutes · Secure form · Instant confirmation</p>\n    </div>\n\n    <!-- SUPPORT -->\n    <p class=\"support\">\n      Questions about your plan? Contact us at\n      <a href=\"mailto:[Support Email]\">[Support Email]</a>\n      or call <strong style=\"color:#aaa\">[Phone Number]</strong><br/>\n      Our team is available Mon–Sat, 7am – 9pm.\n    </p>\n\n  </div>\n\n  <!-- FOOTER -->\n  <div class=\"footer\">\n    <div class=\"footer-logo\">⚡ WORLD FLIGHT GYM</div>\n    <p>\n      © 2026 World Flight Gym · [Gym Address]<br/>\n      <a href=\"[Unsubscribe Link]\">Unsubscribe</a>\n      <span class=\"divider\">·</span>\n      <a href=\"[Privacy Policy]\">Privacy Policy</a>\n      <span class=\"divider\">·</span>\n      <a href=\"[Terms]\">Terms of Service</a>\n    </p>\n  </div>\n\n</div>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        224
+      ],
+      "id": "50abae82-4ce1-421a-8aa0-98e1105a7b23",
+      "name": "Send a message1",
+      "webhookId": "1b5b6f14-90a1-423d-b31b-b8c03766819a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "szjDXTgBn28IRJGa",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7661206524",
+        "text": "=SUB EXPIRES IN 3 DAYS.                                 name:          {{ $('If').item.json.fields.Name }}\nemail:{{ $('If').item.json.fields['Email address'] }}\ndate: {{ $('If').item.json.fields['end date'] }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1152,
+        224
+      ],
+      "id": "d5edfdfc-4744-4ca8-b2f9-8ac29255600e",
+      "name": "Send a text message",
+      "webhookId": "054f60a7-b9b2-43da-9944-882b23c86386",
+      "credentials": {
+        "telegramApi": {
+          "id": "X0HpgGHJIR7bGC0U",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appDgrX91zVJM39ap",
+          "mode": "list",
+          "cachedResultName": "Gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCw8OLOzPicnkLZ",
+          "mode": "list",
+          "cachedResultName": "gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap/tblCw8OLOzPicnkLZ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Webhook').item.json.body.submission.questions[0].value }}",
+            "Subscription": "={{ $('Webhook').item.json.body.submission.questions[2].value }}",
+            "Email address": "={{ $('Webhook').item.json.body.submission.questions[1].value }}",
+            "Status": "Active",
+            "Start date": "={{ $now.format('MM-dd-yyyy') }}",
+            "end date": "={{ $('HTTP Request').item.json.body.submission.questions[2].value === '1 month' ? DateTime.now().plus({ months: 1 }).toFormat('MM-dd-yyyy') : $('HTTP Request').item.json.body.submission.questions[2].value === '2 months' ? DateTime.now().plus({ months: 2 }).toFormat('MM-dd-yyyy') : DateTime.now().plus({ months: 3 }).toFormat('MM-dd-yyyy') }}",
+            "profile pic": "=[\n  {\n    \"url\": \" {{ $json.data.url }}\"\n  }\n]"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Subscription",
+              "displayName": "Subscription",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email address",
+              "displayName": "Email address",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "profile pic",
+              "displayName": "profile pic",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Active",
+                  "value": "Active"
+                },
+                {
+                  "name": "Expired",
+                  "value": "Expired"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start date",
+              "displayName": "Start date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "end date",
+              "displayName": "end date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "0c632302-b0ca-4c05-af48-85be9b1258b1",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "kN3O8PfTd9z0JRe4",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        592
+      ],
+      "id": "03063bc7-49b2-443d-988e-499b5a2c9703",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appDgrX91zVJM39ap",
+          "mode": "list",
+          "cachedResultName": "Gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCw8OLOzPicnkLZ",
+          "mode": "list",
+          "cachedResultName": "gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap/tblCw8OLOzPicnkLZ"
+        },
+        "filterByFormula": "IS_BEFORE({end date}, TODAY())",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        592
+      ],
+      "id": "6030a86a-b8d9-4fe1-a0df-9f0f07528e21",
+      "name": "Search records1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "kN3O8PfTd9z0JRe4",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6509f4d4-5389-4ab9-aef2-d6dafdaf1ea3",
+              "leftValue": "={{ $json.fields['end date'] }}",
+              "rightValue": "={{ $now }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        592
+      ],
+      "id": "7a2a173e-5379-4cd3-afb2-7b1597a089bb",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "411f5852-b9e9-41bc-9f54-2974990cfbb0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        112,
+        832
+      ],
+      "id": "90ab1929-a8cf-429d-8b14-151a985aa73f",
+      "name": "Webhook1",
+      "webhookId": "411f5852-b9e9-41bc-9f54-2974990cfbb0"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appDgrX91zVJM39ap",
+          "mode": "list",
+          "cachedResultName": "Gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCw8OLOzPicnkLZ",
+          "mode": "list",
+          "cachedResultName": "gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap/tblCw8OLOzPicnkLZ"
+        },
+        "filterByFormula": "={Email Address} = \"{{ $json.body.submission.questions[0].value }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        832
+      ],
+      "id": "295e8aa3-74d4-4a88-bf7a-459dafbba285",
+      "name": "Search records2",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "kN3O8PfTd9z0JRe4",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appDgrX91zVJM39ap",
+          "mode": "list",
+          "cachedResultName": "Gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCw8OLOzPicnkLZ",
+          "mode": "list",
+          "cachedResultName": "gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap/tblCw8OLOzPicnkLZ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Status": "Active",
+            "Name": "={{ $json.fields.Name }}",
+            "Subscription": "={{ $('Webhook1').item.json.body.submission.questions[1].value }}",
+            "Email address": "={{ $json.fields['Email address'] }}",
+            "profile pic": "=[\n{\n  \"url\": \"{{ $json.fields['profile pic'][0].url }}\"\n}\n]",
+            "Start date": "={{ $now.format('MM-dd-yyyy') }}",
+            "end date": "={{ $('Webhook1').item.json.body.submission.questions[1].value === '1 month' ? DateTime.now().plus({ months: 1 }).toFormat('MM-dd-yyyy') : $('Webhook1').item.json.body.submission.questions[1].value === '2 months' ? DateTime.now().plus({ months: 2 }).toFormat('MM-dd-yyyy') : DateTime.now().plus({ months: 3 }).toFormat('MM-dd-yyyy') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Subscription",
+              "displayName": "Subscription",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email address",
+              "displayName": "Email address",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "profile pic",
+              "displayName": "profile pic",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Active",
+                  "value": "Active"
+                },
+                {
+                  "name": "Expired",
+                  "value": "Expired"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start date",
+              "displayName": "Start date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "end date",
+              "displayName": "end date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        832
+      ],
+      "id": "c45a92f0-2ffd-428c-96ad-c011f2942621",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "kN3O8PfTd9z0JRe4",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields['Email address'] }}",
+        "subject": "Subscription renewed successfully",
+        "message": "=<!DOCTYPE html> <html lang=\"en\"> <head>   <meta charset=\"UTF-8\" />   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>   <title>Membership Renewed</title>   <link href=\"https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap\" rel=\"stylesheet\"/>   <style>     * { margin: 0; padding: 0; box-sizing: border-box; }      body {       background-color: #0a0a0a;       font-family: 'DM Sans', sans-serif;       color: #f0f0f0;       -webkit-font-smoothing: antialiased;     }      .email-wrapper {       max-width: 620px;       margin: 0 auto;       background: #0a0a0a;     }      .hero {       background: linear-gradient(160deg, #111 0%, #1a1a1a 60%, #0f1a0f 100%);       padding: 48px 40px 36px;       text-align: center;       border-bottom: 2px solid #c8f135;       position: relative;       overflow: hidden;     }      .hero::before {       content: '';       position: absolute;       top: -60px; left: -60px;       width: 220px; height: 220px;       border-radius: 50%;       background: radial-gradient(circle, rgba(200,241,53,0.08) 0%, transparent 70%);     }      .hero::after {       content: '';       position: absolute;       bottom: -40px; right: -40px;       width: 160px; height: 160px;       border-radius: 50%;       background: radial-gradient(circle, rgba(200,241,53,0.06) 0%, transparent 70%);     }      .logo-mark {       display: inline-block;       width: 56px; height: 56px;       background: #c8f135;       border-radius: 12px;       line-height: 56px;       font-size: 28px;       margin-bottom: 20px;       transform: rotate(-6deg);     }      .hero h1 {       font-family: 'Bebas Neue', sans-serif;       font-size: 52px;       letter-spacing: 3px;       color: #ffffff;       line-height: 1;       margin-bottom: 8px;     }      .hero h1 span { color: #c8f135; }      .hero .tagline {       font-size: 13px;       font-weight: 500;       letter-spacing: 4px;       text-transform: uppercase;       color: #888;       margin-top: 10px;     }      .badge-bar {       background: #c8f135;       padding: 14px 40px;       display: flex;       align-items: center;       justify-content: center;       gap: 10px;     }      .badge-bar span {       font-family: 'Bebas Neue', sans-serif;       font-size: 18px;       letter-spacing: 2px;       color: #0a0a0a;     }      .body {       padding: 40px 40px 32px;       background: #111;     }      .greeting {       font-size: 22px;       font-weight: 600;       color: #ffffff;       margin-bottom: 12px;     }      .greeting span { color: #c8f135; }      .intro {       font-size: 15px;       color: #aaa;       line-height: 1.7;       margin-bottom: 32px;     }      .stats-card {       background: #1a1a1a;       border: 1px solid #2a2a2a;       border-left: 4px solid #c8f135;       border-radius: 12px;       padding: 24px 28px;       margin-bottom: 32px;     }      .stats-card h3 {       font-family: 'Bebas Neue', sans-serif;       font-size: 13px;       letter-spacing: 3px;       color: #c8f135;       text-transform: uppercase;       margin-bottom: 20px;     }      .stat-row {       display: flex;       justify-content: space-between;       align-items: center;       padding: 12px 0;       border-bottom: 1px solid #222;     }      .stat-row:last-child {       border-bottom: none;       padding-bottom: 0;     }      .stat-label {       font-size: 12px;       font-weight: 500;       letter-spacing: 1px;       text-transform: uppercase;       color: #666;     }      .stat-value {       font-size: 15px;       font-weight: 600;       color: #f0f0f0;     }      .stat-value.highlight {       color: #c8f135;       font-family: 'Bebas Neue', sans-serif;       font-size: 18px;       letter-spacing: 1px;     }      .status-pill {       background: rgba(200,241,53,0.12);       border: 1px solid rgba(200,241,53,0.3);       color: #c8f135;       font-size: 12px;       font-weight: 600;       letter-spacing: 2px;       text-transform: uppercase;       padding: 4px 12px;       border-radius: 20px;     }      .benefits-section { margin-bottom: 36px; }      .section-title {       font-family: 'Bebas Neue', sans-serif;       font-size: 22px;       letter-spacing: 2px;       color: #ffffff;       margin-bottom: 16px;       border-bottom: 1px solid #222;       padding-bottom: 10px;     }      .benefit-item {       display: flex;       align-items: flex-start;       gap: 14px;       padding: 12px 0;       border-bottom: 1px solid #1a1a1a;     }      .benefit-item:last-child { border-bottom: none; }      .benefit-icon {       width: 36px; height: 36px;       background: rgba(200,241,53,0.1);       border-radius: 8px;       display: flex;       align-items: center;       justify-content: center;       font-size: 16px;       flex-shrink: 0;     }      .benefit-text {       font-size: 14px;       color: #bbb;       line-height: 1.5;       padding-top: 8px;     }      .cta-section {       text-align: center;       margin-bottom: 36px;     }      .cta-btn {       display: inline-block;       background: #c8f135;       color: #0a0a0a;       font-family: 'Bebas Neue', sans-serif;       font-size: 18px;       letter-spacing: 3px;       text-decoration: none;       padding: 16px 44px;       border-radius: 6px;       margin-bottom: 12px;     }      .cta-note {       font-size: 12px;       color: #555;       margin-top: 8px;     }      .moto-strip {       background: linear-gradient(135deg, #0f1a0f, #141f14);       border: 1px solid #1e2e1e;       border-radius: 10px;       padding: 24px 28px;       margin-bottom: 32px;       text-align: center;     }      .moto-strip p {       font-family: 'Bebas Neue', sans-serif;       font-size: 28px;       letter-spacing: 2px;       color: #c8f135;       line-height: 1.2;       margin-bottom: 6px;     }      .moto-strip small {       font-size: 12px;       color: #666;       letter-spacing: 1px;     }      .support {       font-size: 13px;       color: #666;       line-height: 1.8;       margin-bottom: 32px;       text-align: center;     }      .support a { color: #c8f135; text-decoration: none; }      .footer {       background: #0a0a0a;       border-top: 1px solid #1a1a1a;       padding: 28px 40px;       text-align: center;     }      .footer-logo {       font-family: 'Bebas Neue', sans-serif;       font-size: 20px;       letter-spacing: 3px;       color: #333;       margin-bottom: 12px;     }      .footer p {       font-size: 11px;       color: #444;       line-height: 1.8;     }      .footer a { color: #666; text-decoration: none; }     .divider { color: #333; margin: 0 6px; }   </style> </head> <body> <div class=\"email-wrapper\">    <!-- HERO -->   <div class=\"hero\">     <div class=\"logo-mark\">⚡</div>     <h1>MEMBERSHIP<br/><span>RENEWED</span></h1>     <p class=\"tagline\">World Flight Gym · Member Portal</p>   </div>    <!-- BADGE -->   <div class=\"badge-bar\">     <span>✅ YOUR SUBSCRIPTION IS NOW ACTIVE</span>   </div>    <!-- BODY -->   <div class=\"body\">      <p class=\"greeting\">Welcome back, <span>{{ $json.fields.Name }}</span> 💪</p>     <p class=\"intro\">       Your membership has been successfully renewed. You're all set to keep crushing your goals —       full access restored, starting today.     </p>      <!-- STATS CARD -->     <div class=\"stats-card\">       <h3>📋 Renewal Summary</h3>        <div class=\"stat-row\">         <span class=\"stat-label\">Member ID</span>         <span class=\"stat-value\">{{ $json.fields.Name }}</span>       </div>        <div class=\"stat-row\">         <span class=\"stat-label\">Plan</span>         <span class=\"stat-value\">{{ $json.fields.Subscription }}</span>       </div>        <div class=\"stat-row\">         <span class=\"stat-label\">New Start Date</span>         <span class=\"stat-value highlight\">{{ $now.toFormat('dd MMM yyyy') }}</span>       </div>        <div class=\"stat-row\">         <span class=\"stat-label\">New Expiry Date</span>         <span class=\"stat-value highlight\">{{ $now.plus({months: 1}).toFormat('dd MMM yyyy') }}</span>       </div>        <div class=\"stat-row\">         <span class=\"stat-label\">Status</span>         <span class=\"status-pill\">● ACTIVE</span>       </div>     </div>      <!-- BENEFITS -->     <div class=\"benefits-section\">       <h2 class=\"section-title\">WHAT YOU HAVE ACCESS TO</h2>        <div class=\"benefit-item\">         <div class=\"benefit-icon\">🏋️</div>         <p class=\"benefit-text\">Unlimited access to all gym facilities & equipment — 24/7</p>       </div>        <div class=\"benefit-item\">         <div class=\"benefit-icon\">🧘</div>         <p class=\"benefit-text\">Group fitness classes & personal training sessions included</p>       </div>        <div class=\"benefit-item\">         <div class=\"benefit-icon\">📱</div>         <p class=\"benefit-text\">Full access to our app, workout tracking & progress tools</p>       </div>        <div class=\"benefit-item\">         <div class=\"benefit-icon\">🏷️</div>         <p class=\"benefit-text\">Exclusive member discounts, promotions & early event access</p>       </div>     </div>      <!-- MOTIVATIONAL STRIP -->     <div class=\"moto-strip\">       <p>YOUR BEST SESSION<br/>IS ALWAYS THE NEXT ONE.</p>       <small>Stay consistent. Stay strong. 🔥</small>     </div>      <!-- CTA -->     <div class=\"cta-section\">       <a href=\"[App or Portal Link]\" class=\"cta-btn\">🏃 GO TO MY DASHBOARD</a>       <p class=\"cta-note\">View your workout history, class bookings & membership details</p>     </div>      <!-- SUPPORT -->     <p class=\"support\">       Questions? Contact us at <a href=\"mailto:[Support Email]\">[Support Email]</a>       or call <strong style=\"color:#aaa\">[Phone Number]</strong><br/>       Our team is available Mon–Sat, 7am – 9pm.     </p>    </div>    <!-- FOOTER -->   <div class=\"footer\">     <div class=\"footer-logo\">⚡ WORLD FLIGHT GYM</div>     <p>       © 2026 World Flight Gym · [Gym Address]<br/>       <a href=\"[Unsubscribe Link]\">Unsubscribe</a>       <span class=\"divider\">·</span>       <a href=\"[Privacy Policy]\">Privacy Policy</a>       <span class=\"divider\">·</span>       <a href=\"[Terms]\">Terms of Service</a>     </p>   </div>  </div> </body> </html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        832
+      ],
+      "id": "1c1a5e30-09ba-46bb-bee9-81aa71d7d010",
+      "name": "Send a message2",
+      "webhookId": "21bf2893-64ee-4cf1-93c5-ca76452eedf6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "szjDXTgBn28IRJGa",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appDgrX91zVJM39ap",
+          "mode": "list",
+          "cachedResultName": "Gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCw8OLOzPicnkLZ",
+          "mode": "list",
+          "cachedResultName": "gym reg",
+          "cachedResultUrl": "https://airtable.com/appDgrX91zVJM39ap/tblCw8OLOzPicnkLZ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id ",
+            "Name": "={{ $json.fields.Name }}",
+            "Subscription": "={{ $json.fields.Subscription }}",
+            "Email address": "={{ $json.fields['Email address'] }}",
+            "profile pic": "=[\n  {\n    \"url\": \"{{ $json.fields['profile pic'][0].url }}\" \n  }\n] ",
+            "Status": "Expired"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Subscription",
+              "displayName": "Subscription",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email address",
+              "displayName": "Email address",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "profile pic",
+              "displayName": "profile pic",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Active",
+                  "value": "Active"
+                },
+                {
+                  "name": "Expired",
+                  "value": "Expired"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start date",
+              "displayName": "Start date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "end date",
+              "displayName": "end date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        496
+      ],
+      "id": "41ee256b-a6d0-472a-a0d9-00ff27088b52",
+      "name": "Update record1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "kN3O8PfTd9z0JRe4",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields['Email address'] }}",
+        "subject": "Subscription Expired",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n  <title>Membership Expired</title>\n  <link href=\"https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap\" rel=\"stylesheet\"/>\n  <style>\n    * { margin: 0; padding: 0; box-sizing: border-box; }\n\n    body {\n      background-color: #0a0a0a;\n      font-family: 'DM Sans', sans-serif;\n      color: #f0f0f0;\n      -webkit-font-smoothing: antialiased;\n    }\n\n    .email-wrapper {\n      max-width: 620px;\n      margin: 0 auto;\n      background: #0a0a0a;\n    }\n\n    /* HERO */\n    .hero {\n      background: linear-gradient(160deg, #111 0%, #1a1a1a 60%, #1a0f0f 100%);\n      padding: 48px 40px 36px;\n      text-align: center;\n      border-bottom: 2px solid #ff4444;\n      position: relative;\n      overflow: hidden;\n    }\n\n    .hero::before {\n      content: '';\n      position: absolute;\n      top: -60px; left: -60px;\n      width: 220px; height: 220px;\n      border-radius: 50%;\n      background: radial-gradient(circle, rgba(255,68,68,0.08) 0%, transparent 70%);\n    }\n\n    .hero::after {\n      content: '';\n      position: absolute;\n      bottom: -40px; right: -40px;\n      width: 160px; height: 160px;\n      border-radius: 50%;\n      background: radial-gradient(circle, rgba(255,68,68,0.06) 0%, transparent 70%);\n    }\n\n    .logo-mark {\n      display: inline-block;\n      width: 56px; height: 56px;\n      background: #ff4444;\n      border-radius: 12px;\n      line-height: 56px;\n      font-size: 28px;\n      margin-bottom: 20px;\n      transform: rotate(-6deg);\n    }\n\n    .hero h1 {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 52px;\n      letter-spacing: 3px;\n      color: #ffffff;\n      line-height: 1;\n      margin-bottom: 8px;\n    }\n\n    .hero h1 span { color: #ff4444; }\n\n    .hero .tagline {\n      font-size: 13px;\n      font-weight: 500;\n      letter-spacing: 4px;\n      text-transform: uppercase;\n      color: #888;\n      margin-top: 10px;\n    }\n\n    /* BADGE */\n    .badge-bar {\n      background: #ff4444;\n      padding: 14px 40px;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n    }\n\n    .badge-bar span {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 18px;\n      letter-spacing: 2px;\n      color: #ffffff;\n    }\n\n    /* BODY */\n    .body {\n      padding: 40px 40px 32px;\n      background: #111;\n    }\n\n    .greeting {\n      font-size: 22px;\n      font-weight: 600;\n      color: #ffffff;\n      margin-bottom: 12px;\n    }\n\n    .greeting span { color: #ff4444; }\n\n    .intro {\n      font-size: 15px;\n      color: #aaa;\n      line-height: 1.7;\n      margin-bottom: 32px;\n    }\n\n    /* STATS CARD */\n    .stats-card {\n      background: #1a1a1a;\n      border: 1px solid #2a2a2a;\n      border-left: 4px solid #ff4444;\n      border-radius: 12px;\n      padding: 24px 28px;\n      margin-bottom: 32px;\n    }\n\n    .stats-card h3 {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 13px;\n      letter-spacing: 3px;\n      color: #ff4444;\n      text-transform: uppercase;\n      margin-bottom: 20px;\n    }\n\n    .stat-row {\n      display: flex;\n      justify-content: space-between;\n      align-items: center;\n      padding: 12px 0;\n      border-bottom: 1px solid #222;\n    }\n\n    .stat-row:last-child {\n      border-bottom: none;\n      padding-bottom: 0;\n    }\n\n    .stat-label {\n      font-size: 12px;\n      font-weight: 500;\n      letter-spacing: 1px;\n      text-transform: uppercase;\n      color: #666;\n    }\n\n    .stat-value {\n      font-size: 15px;\n      font-weight: 600;\n      color: #f0f0f0;\n    }\n\n    .stat-value.highlight {\n      color: #ff4444;\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 18px;\n      letter-spacing: 1px;\n    }\n\n    .status-pill {\n      background: rgba(255,68,68,0.12);\n      border: 1px solid rgba(255,68,68,0.3);\n      color: #ff4444;\n      font-size: 12px;\n      font-weight: 600;\n      letter-spacing: 2px;\n      text-transform: uppercase;\n      padding: 4px 12px;\n      border-radius: 20px;\n    }\n\n    /* URGENCY BOX */\n    .urgency-box {\n      background: linear-gradient(135deg, #1a0f0f, #1f1414);\n      border: 1px solid #2e1e1e;\n      border-radius: 10px;\n      padding: 20px 24px;\n      margin-bottom: 32px;\n      display: flex;\n      gap: 16px;\n      align-items: flex-start;\n    }\n\n    .urgency-icon {\n      font-size: 28px;\n      flex-shrink: 0;\n    }\n\n    .urgency-text h4 {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 16px;\n      letter-spacing: 2px;\n      color: #ff4444;\n      margin-bottom: 6px;\n    }\n\n    .urgency-text p {\n      font-size: 13px;\n      color: #888;\n      line-height: 1.6;\n    }\n\n    /* WHAT YOU'RE MISSING */\n    .missing-section { margin-bottom: 36px; }\n\n    .section-title {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 22px;\n      letter-spacing: 2px;\n      color: #ffffff;\n      margin-bottom: 16px;\n      border-bottom: 1px solid #222;\n      padding-bottom: 10px;\n    }\n\n    .benefit-item {\n      display: flex;\n      align-items: flex-start;\n      gap: 14px;\n      padding: 12px 0;\n      border-bottom: 1px solid #1a1a1a;\n      opacity: 0.5;\n    }\n\n    .benefit-item:last-child { border-bottom: none; }\n\n    .benefit-icon {\n      width: 36px; height: 36px;\n      background: rgba(255,68,68,0.08);\n      border-radius: 8px;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      font-size: 16px;\n      flex-shrink: 0;\n    }\n\n    .benefit-text {\n      font-size: 14px;\n      color: #bbb;\n      line-height: 1.5;\n      padding-top: 8px;\n      text-decoration: line-through;\n    }\n\n    /* CTA */\n    .cta-section {\n      text-align: center;\n      margin-bottom: 36px;\n      background: linear-gradient(135deg, #0f1a0f, #141f14);\n      border: 1px solid #1e2e1e;\n      border-radius: 12px;\n      padding: 32px 28px;\n    }\n\n    .cta-section h3 {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 26px;\n      letter-spacing: 2px;\n      color: #ffffff;\n      margin-bottom: 8px;\n    }\n\n    .cta-section p {\n      font-size: 13px;\n      color: #888;\n      margin-bottom: 24px;\n      line-height: 1.6;\n    }\n\n    .cta-btn {\n      display: inline-block;\n      background: #c8f135;\n      color: #0a0a0a;\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 20px;\n      letter-spacing: 3px;\n      text-decoration: none;\n      padding: 18px 48px;\n      border-radius: 6px;\n      margin-bottom: 12px;\n    }\n\n    .cta-note {\n      font-size: 11px;\n      color: #555;\n      margin-top: 10px;\n    }\n\n    /* PRICE WARNING */\n    .price-warning {\n      background: rgba(200,241,53,0.05);\n      border: 1px solid rgba(200,241,53,0.15);\n      border-radius: 8px;\n      padding: 14px 18px;\n      margin-bottom: 32px;\n      text-align: center;\n    }\n\n    .price-warning p {\n      font-size: 13px;\n      color: #aaa;\n      line-height: 1.6;\n    }\n\n    .price-warning strong {\n      color: #c8f135;\n    }\n\n    /* SUPPORT */\n    .support {\n      font-size: 13px;\n      color: #666;\n      line-height: 1.8;\n      margin-bottom: 32px;\n      text-align: center;\n    }\n\n    .support a { color: #c8f135; text-decoration: none; }\n\n    /* FOOTER */\n    .footer {\n      background: #0a0a0a;\n      border-top: 1px solid #1a1a1a;\n      padding: 28px 40px;\n      text-align: center;\n    }\n\n    .footer-logo {\n      font-family: 'Bebas Neue', sans-serif;\n      font-size: 20px;\n      letter-spacing: 3px;\n      color: #333;\n      margin-bottom: 12px;\n    }\n\n    .footer p {\n      font-size: 11px;\n      color: #444;\n      line-height: 1.8;\n    }\n\n    .footer a { color: #666; text-decoration: none; }\n    .divider { color: #333; margin: 0 6px; }\n  </style>\n</head>\n<body>\n<div class=\"email-wrapper\">\n\n  <!-- HERO -->\n  <div class=\"hero\">\n    <div class=\"logo-mark\">⏰</div>\n    <h1>MEMBERSHIP<br/><span>EXPIRED</span></h1>\n    <p class=\"tagline\">World Flight Gym · Member Portal</p>\n  </div>\n\n  <!-- BADGE -->\n  <div class=\"badge-bar\">\n    <span>❌ YOUR SUBSCRIPTION HAS ENDED</span>\n  </div>\n\n  <!-- BODY -->\n  <div class=\"body\">\n\n    <p class=\"greeting\">Hey <span></span>,{{ $('Search records1').item.json.fields.Name }}</p>\n    <p class=\"intro\">\n      Your World Flight Gym membership has expired. We hate to see you go —\n      but the good news is, you're just one click away from getting back in the game. 🏋️\n    </p>\n\n    <!-- STATS CARD -->\n    <div class=\"stats-card\">\n      <h3>📋 Membership Summary</h3>\n\n      <div class=\"stat-row\">\n        <span class=\"stat-label\">Member Name</span>\n        <span class=\"stat-value\">{{ $('Search records1').item.json.fields.Name }}</span>\n      </div>\n\n      <div class=\"stat-row\">\n        <span class=\"stat-label\">Plan</span>\n        <span class=\"stat-value\">{{ $('Search records1').item.json.fields.Subscription }}</span>\n      </div>\n\n      <div class=\"stat-row\">\n        <span class=\"stat-label\">Expired On</span>\n        <span class=\"stat-value highlight\">{{ $json.fields['end date'] }}</span>\n      </div>\n\n      <div class=\"stat-row\">\n        <span class=\"stat-label\">Status</span>\n        <span class=\"status-pill\">● EXPIRED</span>\n      </div>\n    </div>\n\n    <!-- URGENCY -->\n    <div class=\"urgency-box\">\n      <div class=\"urgency-icon\">⚠️</div>\n      <div class=\"urgency-text\">\n        <h4>YOUR ACCESS HAS BEEN SUSPENDED</h4>\n        <p>You no longer have access to gym facilities, classes, or the member app. Renew now to restore full access immediately.</p>\n      </div>\n    </div>\n\n    <!-- WHAT YOU'RE MISSING -->\n    <div class=\"missing-section\">\n      <h2 class=\"section-title\">WHAT YOU'RE MISSING OUT ON</h2>\n\n      <div class=\"benefit-item\">\n        <div class=\"benefit-icon\">🏋️</div>\n        <p class=\"benefit-text\">Unlimited access to all gym facilities & equipment — 24/7</p>\n      </div>\n\n      <div class=\"benefit-item\">\n        <div class=\"benefit-icon\">🧘</div>\n        <p class=\"benefit-text\">Group fitness classes & personal training sessions</p>\n      </div>\n\n      <div class=\"benefit-item\">\n        <div class=\"benefit-icon\">📱</div>\n        <p class=\"benefit-text\">Full access to app, workout tracking & progress tools</p>\n      </div>\n\n      <div class=\"benefit-item\">\n        <div class=\"benefit-icon\">🏷️</div>\n        <p class=\"benefit-text\">Exclusive member discounts, promotions & early event access</p>\n      </div>\n    </div>\n\n    <!-- PRICE WARNING -->\n    <div class=\"price-warning\">\n      <p>🔒 <strong>Lock in your current rate before it's gone.</strong><br/>\n      Prices may increase for new sign-ups — renewing now keeps your existing plan rate.</p>\n    </div>\n\n    <!-- CTA -->\n    <div class=\"cta-section\">\n      <h3>READY TO GET BACK? 💪</h3>\n      <p>Renew your membership in under 2 minutes.<br/>Full access restored immediately after payment.</p>\n      <a href=\"https://forms.fillout.com/t/cGxTECFjNMus?email={{ $json.fields['Email address'] }}&name={{ $json.fields.Name }}&plan={{ $json.fields.Subscription }}\" class=\"cta-btn\">\n        🔄 RENEW MY MEMBERSHIP NOW\n      </a>\n      <p class=\"cta-note\">Clicking this link will take you to the renewal form — takes less than 2 minutes</p>\n    </div>\n\n    <!-- SUPPORT -->\n    <p class=\"support\">\n      Need help choosing a plan? Contact us at\n      <a href=\"mailto:[Support Email]\">[Support Email]</a>\n      or call <strong style=\"color:#aaa\">[Phone Number]</strong><br/>\n      Our team is available Mon–Sat, 7am – 9pm.\n    </p>\n\n  </div>\n\n  <!-- FOOTER -->\n  <div class=\"footer\">\n    <div class=\"footer-logo\">⚡ WORLD FLIGHT GYM</div>\n    <p>\n      © 2026 World Flight Gym · [Gym Address]<br/>\n      <a href=\"[Unsubscribe Link]\">Unsubscribe</a>\n      <span class=\"divider\">·</span>\n      <a href=\"[Privacy Policy]\">Privacy Policy</a>\n      <span class=\"divider\">·</span>\n      <a href=\"[Terms]\">Terms of Service</a>\n    </p>\n  </div>\n\n</div>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1136,
+        496
+      ],
+      "id": "27b20887-155a-4e8d-9c4d-0eae6faa3fcc",
+      "name": "Send a message3",
+      "webhookId": "488c8f2f-ca2a-470a-92e1-a3deb36563f4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "szjDXTgBn28IRJGa",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Subscription renewal",
+        "height": 80
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        864
+      ],
+      "id": "fbe33d39-2f91-4ce1-8c0e-77ad1b2591de",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "GYMN REGISTERATION",
+        "height": 80
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        0
+      ],
+      "id": "25ec7f3e-65ec-460c-9e90-e03b8d87962c",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "3 DAYS TO EXPIRATION",
+        "height": 80
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        320
+      ],
+      "id": "d571070d-f7ab-4331-8327-e23f187eb161",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "EXPIRED SUB.",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        608
+      ],
+      "id": "5b734282-5910-4519-834a-5d402117093d",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        736,
+        832
+      ],
+      "id": "0de040cd-acd0-4b8b-a8a0-af9de15e6167",
+      "name": "Wait1",
+      "webhookId": "b2ba4951-0361-4604-adc7-1b72c14d93e7"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "jevwets01.app.n8n.cloud",
+            "user-agent": "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)",
+            "content-length": "971",
+            "accept": "application/json",
+            "accept-encoding": "gzip, br",
+            "baggage": "sentry-environment=production,sentry-public_key=fb9e5b294f68425eb7eb6b168b67dc8d,sentry-trace_id=62c55bb3659b4a5ebafcc1eed58ff0a6",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "74.220.48.253",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "9f0a484ebb7d495f-PDX",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "sentry-trace": "62c55bb3659b4a5ebafcc1eed58ff0a6-8c55ec12ce087e99",
+            "traceparent": "00-69e9a6820000000015952795b20a98b3-5688fbc2088289d6-00",
+            "tracestate": "dd=t.tid:69e9a68200000000;t.dm:-3;s:-1;p:5688fbc2088289d6",
+            "x-datadog-parent-id": "6235510494879451606",
+            "x-datadog-sampling-priority": "-1",
+            "x-datadog-tags": "_dd.p.tid=69e9a68200000000",
+            "x-datadog-trace-id": "1555192770217023667",
+            "x-forwarded-for": "74.220.48.253, 172.68.174.128",
+            "x-forwarded-host": "jevwets01.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-73-5d7fb6959d-n2cr9",
+            "x-is-trusted": "yes",
+            "x-real-ip": "74.220.48.253"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "formId": "8JNqPnuQjJus",
+            "formName": "Gym reg",
+            "submission": {
+              "submissionId": "29dddb5c-5df4-41f4-bc7c-06b803ffd1e1",
+              "submissionTime": "2026-04-23T04:56:34.206Z",
+              "lastUpdatedAt": "2026-04-23T04:56:34.206Z",
+              "questions": [
+                {
+                  "id": "k7ak",
+                  "name": "Full name",
+                  "type": "ShortAnswer",
+                  "value": "Matt org"
+                },
+                {
+                  "id": "1CS2",
+                  "name": "Email",
+                  "type": "EmailInput",
+                  "value": "onobruduomojevwe@gmail.com"
+                },
+                {
+                  "id": "92TQ",
+                  "name": "Subscription time",
+                  "type": "MultipleChoice",
+                  "value": "1 month"
+                },
+                {
+                  "id": "nWsZ",
+                  "name": "gender",
+                  "type": "MultipleChoice",
+                  "value": "male"
+                },
+                {
+                  "id": "eTNS",
+                  "name": "upload pic here",
+                  "type": "FileUpload",
+                  "value": [
+                    {
+                      "url": "https://prod-fillout-oregon-s3.s3.us-west-2.amazonaws.com/orgid-647072/flowpublicid-8JNqPnuQjJus/14179750-0ae0-48a3-a22e-b7095560a3af-c6YCEMJmMEhfC6u2ZvdLkPqFOMedomsKQzTNopqBxAkV0RKtHwN5FzGmysJPRYycg8lNZpyT5AjEJnK2os0NHecOiQctuVVR2ca/IMG_6164.jpg",
+                      "filename": "IMG_6164.jpg"
+                    }
+                  ]
+                }
+              ],
+              "calculations": [],
+              "urlParameters": [],
+              "quiz": {},
+              "documents": [],
+              "scheduling": [],
+              "payments": []
+            }
+          },
+          "webhookUrl": "https://jevwets01.app.n8n.cloud/webhook-test/38e88f27-3f8d-4bef-be05-7e1eb7784e25",
+          "executionMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Webhook1": [
+      {
+        "json": {
+          "headers": {
+            "host": "jevwets01.app.n8n.cloud",
+            "user-agent": "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)",
+            "content-length": "491",
+            "accept": "application/json",
+            "accept-encoding": "gzip, br",
+            "baggage": "sentry-environment=production,sentry-release=f7e5f393a3153c26f3b05ad343488ee940663d5f,sentry-public_key=eabd9f487737de9da0a076f94367387c,sentry-trace_id=170518efb0fc096120cfd10ee56224ea,sentry-sampled=false",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "74.220.48.248",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "9f0a88351c80054d-PDX",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "sentry-trace": "061f321d7a824413b8e4da629d733e9d-b55cc7b6501e3df3",
+            "traceparent": "00-69e9b0bb0000000038311d97d7d7a4c9-33e39dedadcb3d81-00",
+            "tracestate": "dd=t.tid:69e9b0bb00000000;t.dm:-3;s:-1;p:33e39dedadcb3d81",
+            "x-datadog-parent-id": "3739005759796231553",
+            "x-datadog-sampling-priority": "-1",
+            "x-datadog-tags": "_dd.p.tid=69e9b0bb00000000",
+            "x-datadog-trace-id": "4049050077981287625",
+            "x-forwarded-for": "74.220.48.248, 104.23.160.38",
+            "x-forwarded-host": "jevwets01.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-73-5d7fb6959d-dmr99",
+            "x-is-trusted": "yes",
+            "x-real-ip": "74.220.48.248"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "formId": "cGxTECFjNMus",
+            "formName": "Gym renewal",
+            "submission": {
+              "submissionId": "a2a678e2-bf58-4e37-b5bc-b965a7eee313",
+              "submissionTime": "2026-04-23T05:40:11.556Z",
+              "lastUpdatedAt": "2026-04-23T05:40:11.556Z",
+              "questions": [
+                {
+                  "id": "gbp3",
+                  "name": "Email Address",
+                  "type": "ShortAnswer",
+                  "value": "onobruduomojevwe@gmail.com"
+                },
+                {
+                  "id": "hq6L",
+                  "name": "Subscription time",
+                  "type": "MultipleChoice",
+                  "value": "2 months"
+                }
+              ],
+              "calculations": [],
+              "urlParameters": [],
+              "quiz": {},
+              "documents": [],
+              "scheduling": [],
+              "payments": []
+            }
+          },
+          "webhookUrl": "https://jevwets01.app.n8n.cloud/webhook-test/411f5852-b9e9-41bc-9f54-2974990cfbb0",
+          "executionMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Search records1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Search records2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records2": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Update record1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record1": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "88b6d26f-6c08-4b74-9abb-409f0b0fdc67",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "32ac844604d8c0b3e062ea8f55ba43ee90eb14b42ebd0c3dd6161483705e5143"
+  },
+  "id": "6ONpZdGIYgUUT8cz",
+  "tags": []
+}
