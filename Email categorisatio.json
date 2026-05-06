@@ -1,0 +1,606 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6b3365c4-9403-43d9-a037-989bbf52fbfe",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "szjDXTgBn28IRJGa",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const email = $input.item.json;\n\n// Uncomment this line to see everything — useful for debugging\n// return email;\n\nconst subject = \n  email.subject ||\n  email.Subject ||\n  email.headers?.subject ||\n  email.payload?.headers?.find(h => h.name === 'Subject')?.value ||\n  'No Subject';\n\nconst sender =\n  email.from ||\n  email.From ||\n  email.sender ||\n  email.headers?.from ||\n  email.payload?.headers?.find(h => h.name === 'From')?.value ||\n  email.from?.value?.[0]?.address ||\n  'Unknown Sender';\n\nconst body =\n  email.text ||\n  email.body ||\n  email.snippet ||\n  email.textPlain ||\n  '';\n\nreturn {\n  subject: subject,\n  sender: sender,\n  body: body.slice(0, 1500),\n  emailId: email.id || email.messageId || '',\n  date: email.date || email.internalDate || new Date().toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "81b0693e-9a79-4c2d-b9bf-b8c660a35639",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are an email classification assistant for a business.\n\nClassify the following email into EXACTLY ONE of these categories:\n- Sales\n- Customer Service\n- Human Resources\n- Finance\n- Operations\n- Other\n\nEmail Subject: {{ $json.subject }}\nFrom: {{ $json.sender }}\nBody: {{ $json.body }}\n\nRespond with ONLY a JSON object in this exact format (no extra text):\n{\n  \"category\": \"Sales\",\n  \"confidence\": \"High\",\n  \"reason\": \"Brief one-line reason\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "dc2e0f7e-e877-441f-9554-cdceb0838fa9",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "KnQU8xBmKJD2weu6",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.item.json;\n\nconst aiResponse = data.output?.[0]?.content?.[0]?.text || '';\n\nif (!aiResponse) {\n  return { debug: JSON.stringify(data), category: 'Other', confidence: 'Low', reason: 'No AI response found' };\n}\n\nlet parsed;\ntry {\n  parsed = JSON.parse(aiResponse);\n} catch (e) {\n  const categoryMatch = aiResponse.match(/\"category\"\\s*:\\s*\"([^\"]+)\"/);\n  const confidenceMatch = aiResponse.match(/\"confidence\"\\s*:\\s*\"([^\"]+)\"/);\n  const reasonMatch = aiResponse.match(/\"reason\"\\s*:\\s*\"([^\"]+)\"/);\n\n  parsed = {\n    category: categoryMatch?.[1] || 'Other',\n    confidence: confidenceMatch?.[1] || 'Low',\n    reason: reasonMatch?.[1] || 'Could not parse response'\n  };\n}\n\nreturn {\n  emailId: data.emailId || '',\n  subject: data.subject || '',\n  sender: data.sender || '',\n  date: data.date || '',\n  category: parsed.category,\n  confidence: parsed.confidence,\n  reason: parsed.reason\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "ea276348-4e0c-4091-b894-eacd339e961a",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Sales",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d0e5cbfe-3a4b-4ddc-bcd7-3b58a1fb3b54"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Sales"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a1f67ec8-3804-4b0d-b6a6-168138db6f8b",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Customer Service",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": "={{ true }}",
+              "outputKey": "=Customer Service"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "db5290fb-f567-48ad-a1b5-23d51f6eebdb",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Human Resources",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Human Resources"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d8fe8aaf-4655-41ae-b3a6-607a86e64e84",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Finance",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Finance"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c0ec2147-7fe3-48db-9b89-1ae8dc28fba4",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Operations",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Opertions"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b6e9b208-9804-4a10-8948-eb713229abbb",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "=Other",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Other"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        0
+      ],
+      "id": "3a61aad2-1172-46e9-a5ea-53073fa03aa3",
+      "name": "Switch"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        -304
+      ],
+      "id": "00512576-8221-45f9-b5ab-e223559c64b1",
+      "name": "Sales"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        -208
+      ],
+      "id": "63a8aacd-b41c-41b6-8890-298961a30415",
+      "name": "Customer Service"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        -32
+      ],
+      "id": "b17b4f61-80dc-4139-9445-01d9a1a08c44",
+      "name": "HR"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        112
+      ],
+      "id": "05ed11c0-f678-4822-9571-acc5a39b3a76",
+      "name": "Finance"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        256
+      ],
+      "id": "02c526cb-f8f8-475c-b31c-5e10c04a8133",
+      "name": "Operations"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        432
+      ],
+      "id": "8d1b0224-6f30-4ae0-aeb7-52bc8fdd8e03",
+      "name": "Other"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1W1s3PqV2ZiYZJl_E4HJJthhGHXJZpdC0PDqtTqnmH9s",
+          "mode": "list",
+          "cachedResultName": "Category",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1W1s3PqV2ZiYZJl_E4HJJthhGHXJZpdC0PDqtTqnmH9s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Email cat.",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1W1s3PqV2ZiYZJl_E4HJJthhGHXJZpdC0PDqtTqnmH9s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Sender": "={{ $('Code in JavaScript').item.json.sender }}",
+            "Category": "={{ $json.category }}",
+            "Reason": "={{ $json.reason }}",
+            "Confidence": "={{ $json.confidence }}",
+            "Subject": "={{ $('Code in JavaScript').item.json.subject }}",
+            "Email ID": "={{ $('Code in JavaScript').item.json.emailId }}",
+            "Date": "={{ $today }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sender",
+              "displayName": "Sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Confidence",
+              "displayName": "Confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1520,
+        16
+      ],
+      "id": "28804135-a02d-449a-84ad-1de3197b3527",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "K5dk6ddkMHd90gSf",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Sales",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Customer Service",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HR",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Finance",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Operations",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Other",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HR": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Service": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sales": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finance": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Operations": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Other": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5cd0cab4-4977-46a6-b833-57e9f684a1bd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "32ac844604d8c0b3e062ea8f55ba43ee90eb14b42ebd0c3dd6161483705e5143"
+  },
+  "id": "M1m2hzLYh5Ps7KMN",
+  "tags": []
+}
