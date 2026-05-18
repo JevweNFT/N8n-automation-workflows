@@ -1,0 +1,1034 @@
+{
+  "name": "Web3 projects tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        -304
+      ],
+      "id": "3f2b3f5f-50a8-4c66-a83e-25b9f2242ae2",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://cointelegraph.com/rss/tag/web3",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        -16
+      ],
+      "id": "4611f27c-b265-4655-8e9e-5d2ae254cd99",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => ({\n  json: {\n    title: item.json.title,\n    description: item.json.description,\n    url: item.json.url,\n    author: item.json.author,\n    published: item.json.published\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        -304
+      ],
+      "id": "5eebd452-8c72-4eda-9bbd-c4e0bcc02d36",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\n\nconst payload = JSON.stringify({\n  model: \"llama-3.3-70b-versatile\",\n  temperature: 0.3,\n  messages: [\n    {\n      role: \"system\",\n      content: \"Return ONLY a JSON object, no markdown, no backticks: {\\\"score\\\": 5, \\\"project_name\\\": \\\"name\\\", \\\"pain_points\\\": \\\"points\\\", \\\"opportunities\\\": \\\"opps\\\"}\"\n    },\n    {\n      role: \"user\",\n      content: \"Title: \" + item.title + \" Description: \" + item.description\n    }\n  ]\n});\n\nlet score = 0;\nlet project_name = item.title;\nlet pain_points = \"\";\nlet opportunities = \"\";\n\ntry {\n  const response = await this.helpers.httpRequest({\n    method: \"POST\",\n    url: \"https://api.groq.com/openai/v1/chat/completions\",\n    headers: {\n      \"Authorization\": \"Bearer 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\",\n      \"Content-Type\": \"application/json\"\n    },\n    body: payload\n  });\n  const parsed = JSON.parse(response.choices[0].message.content);\n  score = Number(parsed.score) || 0;\n  project_name = String(parsed.project_name || item.title);\n  pain_points = String(parsed.pain_points || \"\");\n  opportunities = String(parsed.opportunities || \"\");\n} catch(e) {\n  score = 0;\n}\n\nreturn {\n  json: {\n    score,\n    project_name,\n    pain_points,\n    opportunities,\n    title: String(item.title),\n    url: String(item.url),\n    author: String(item.author),\n    published: String(item.published)\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        -304
+      ],
+      "id": "344d02a4-0372-4258-8020-45e8dc12bb67",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "53bafbbd-04a0-4aac-93de-95f082554310",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 7,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2192,
+        -304
+      ],
+      "id": "f6c7e5b2-5301-4082-9ab9-69357acd7ca7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app8ykPG0P4knNdH7",
+          "mode": "list",
+          "cachedResultName": "web3 projects",
+          "cachedResultUrl": "https://airtable.com/app8ykPG0P4knNdH7"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbldp1tosBeCksUnD",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app8ykPG0P4knNdH7/tbldp1tosBeCksUnD"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Project name": "={{ $('Code in JavaScript2').item.json.project_name }}",
+            "Source url": "={{ $json.url }}",
+            "Pain Points": "={{ $('Code in JavaScript2').item.json.pain_points }}",
+            "Opportunities": "={{ $('Code in JavaScript2').item.json.opportunities }}",
+            "Score": "={{ $('Code in JavaScript2').item.json.score }}",
+            "Status": "New",
+            "Date found": "=={{ $now.toFormat('yyyy-MM-dd') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Project name",
+              "displayName": "Project name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Source url",
+              "displayName": "Source url",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Pain Points",
+              "displayName": "Pain Points",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Opportunities",
+              "displayName": "Opportunities",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Drafted",
+                  "value": "Drafted"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date found",
+              "displayName": "Date found",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2864,
+        -304
+      ],
+      "id": "22ce7a87-f047-4b00-af28-7f618f41ca85",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "bPselOAeSaTqZGZf",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7661206524",
+        "text": "=🎯 Web3 Prospect Found!  📦 Project: {{ $json.fields['Project name'] }} 🔴 Pain Points: {{ $json.fields['Pain Points'] }} 💡 Opportunities:{{ $json.fields.Opportunities }}  ⭐ Score: {{ $json.fields.Score }}/10 🔗{{ $json.fields['Source url'] }} Reply /draft {{ $json.fields['Project name'] }} to generate outreach",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3088,
+        -304
+      ],
+      "id": "fec0b93b-c3c0-4455-909c-668bf3ccd3c6",
+      "name": "Send a text message",
+      "webhookId": "282c5693-6dd0-4d2d-b009-451219896afa",
+      "credentials": {
+        "telegramApi": {
+          "id": "gopj0H4H7TMtdwfQ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const message = $input.first().json.message.text;\nconst projectName = message.replace('/draft', '').trim();\n\nreturn [{\n  json: {\n    project_name: projectName,\n    chat_id: $input.first().json.message.chat.id\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        208
+      ],
+      "id": "dd67436c-0efd-4d47-8fe8-40210441db33",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        208
+      ],
+      "id": "b575854e-c9a5-4a4c-a419-d8c0d76004eb",
+      "name": "Telegram Trigger",
+      "webhookId": "c8da1416-ee05-4f87-b5c3-f3075228ae26",
+      "credentials": {
+        "telegramApi": {
+          "id": "gopj0H4H7TMtdwfQ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0f460ac7-956a-4db4-84aa-cd661898cd76",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/draft",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "f3cd1930-69be-4556-826a-edec712a1159",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app8ykPG0P4knNdH7",
+          "mode": "list",
+          "cachedResultName": "web3 projects",
+          "cachedResultUrl": "https://airtable.com/app8ykPG0P4knNdH7"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbldp1tosBeCksUnD",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app8ykPG0P4knNdH7/tbldp1tosBeCksUnD"
+        },
+        "filterByFormula": "=={{ \"SEARCH('\" + $json.project_name + \"', {Project Name})\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        208
+      ],
+      "id": "7ca3ee3f-d06e-4eb0-83e6-6de5006b2aca",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "bPselOAeSaTqZGZf",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const project = $input.first().json.fields;\nconst chatId = $input.first().json.chat_id;\n\nconst payload = JSON.stringify({\n  model: \"llama-3.3-70b-versatile\",\n  temperature: 0.7,\n  messages: [\n    {\n      role: \"system\",\n      content: \"You are an expert freelance automation consultant. Write a short, personalized cold outreach message to a Web3 project founder. Be conversational, specific to their pain points, and end with a soft call to action. Max 150 words.\"\n    },\n    {\n      role: \"user\",\n      content: \"Project: \" + project['Project Name'] + \n               \"\\nPain Points: \" + project['Pain Points'] + \n               \"\\nOpportunities: \" + project['Opportunities'] +\n               \"\\nWrite a cold outreach message from JevweOps, a workflow automation specialist.\"\n    }\n  ]\n});\n\nconst response = await this.helpers.httpRequest({\n  method: 'POST',\n  url: 'https://api.groq.com/openai/v1/chat/completions',\n  headers: {\n    'Authorization': 'Bearer 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',\n    'Content-Type': 'application/json'\n  },\n  body: payload\n});\n\nconst draft = response.choices[0].message.content;\n\nreturn [{\n  json: {\n    draft,\n    chat_id: chatId,\n    project_name: project['Project Name']\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        208
+      ],
+      "id": "be52aabd-4f61-4674-8984-464fe33463ea",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "chatId": "7661206524",
+        "text": "=✍️ Outreach Draft for  {{ $json.draft }} ",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        208
+      ],
+      "id": "5cbedcc8-fec8-49b5-8a4d-61f9ff53134d",
+      "name": "Send a text message1",
+      "webhookId": "b39ad159-d041-4782-93a6-2e2a2c01f522",
+      "credentials": {
+        "telegramApi": {
+          "id": "gopj0H4H7TMtdwfQ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        432
+      ],
+      "id": "f17779a4-abd9-48f3-86c3-bd6484f3e490",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "7661206524",
+        "text": "={{ $json.execution.error.message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        432
+      ],
+      "id": "f5ec94e6-ec43-4a3b-8075-addeb0e01451",
+      "name": "Send a text message2",
+      "webhookId": "e8968ea2-a26d-4bf7-a89b-1a7a4a1a296a",
+      "credentials": {
+        "telegramApi": {
+          "id": "gopj0H4H7TMtdwfQ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "c89cc225-d2be-4bb7-b07a-742065a75de8",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "url": "https://decrypt.co/feed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        -208
+      ],
+      "id": "36f575dc-2d82-4d21-a0ec-9e3e3153406a",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -208
+      ],
+      "id": "207c3329-a1e9-4a5b-a751-b02e84c98ee8",
+      "name": "XML1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.first().json.rss.channel.item;\n\nreturn items.map(item => {\n  const cleanDesc = item.description\n    ? item.description.replace(/<[^>]*>/g, '').trim().slice(0, 500)\n    : '';\n\n  return {\n    json: {\n      title: item.title,\n      description: cleanDesc,\n      url: item.link,\n      author: item['dc:creator'] || 'Unknown',\n      published: item.pubDate\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -208
+      ],
+      "id": "955329bf-7358-4f6b-ba59-14d02c236528",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        896,
+        -336
+      ],
+      "id": "43bb743a-aba4-4780-b32a-5254744864e3",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allItems = [];\n\nfor (const input of $input.all()) {\n  // Already parsed items (from Decrypt Code node)\n  if (input.json.title && input.json.url) {\n    allItems.push({ json: input.json });\n    continue;\n  }\n\n  // Raw RSS items (from CoinTelegraph XML node)\n  if (input.json.rss && input.json.rss.channel && input.json.rss.channel.item) {\n    const items = input.json.rss.channel.item;\n    for (const item of items) {\n      const cleanDesc = item.description\n        ? item.description.replace(/<[^>]*>/g, '').trim().slice(0, 500)\n        : '';\n      allItems.push({\n        json: {\n          title: item.title,\n          description: cleanDesc,\n          url: item.link,\n          author: item['dc:creator'] || 'Unknown',\n          published: item.pubDate\n        }\n      });\n    }\n  }\n}\n\nreturn allItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -16
+      ],
+      "id": "56fd6719-81a7-48b7-a738-7bf38174eebf",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "url": "https://thedefiant.io/feed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        -400
+      ],
+      "id": "c2c07769-3cb6-480e-bc65-ec12c430e1bb",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "url": "https://www.coindesk.com/arc/outboundfeeds/rss/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        -592
+      ],
+      "id": "99910a63-8229-46b7-b13b-0c515fd8d314",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -592
+      ],
+      "id": "a95df293-0209-4161-9bad-4e74387c9a35",
+      "name": "XML2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -400
+      ],
+      "id": "350f5518-0450-4e41-910a-8073fb234dc7",
+      "name": "XML3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allItems = [];\n\nfor (const input of $input.all()) {\n  // Already parsed items (from Decrypt Code node)\n  if (input.json.title && input.json.url) {\n    allItems.push({ json: input.json });\n    continue;\n  }\n\n  // Raw RSS items (from CoinTelegraph XML node)\n  if (input.json.rss && input.json.rss.channel && input.json.rss.channel.item) {\n    const items = input.json.rss.channel.item;\n    for (const item of items) {\n      const cleanDesc = item.description\n        ? item.description.replace(/<[^>]*>/g, '').trim().slice(0, 500)\n        : '';\n      allItems.push({\n        json: {\n          title: item.title,\n          description: cleanDesc,\n          url: item.link,\n          author: item['dc:creator'] || 'Unknown',\n          published: item.pubDate\n        }\n      });\n    }\n  }\n}\n\nreturn allItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -400
+      ],
+      "id": "31a6ab04-ec8d-42a4-8bc4-bb38f9501e75",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allItems = [];\n\nfor (const input of $input.all()) {\n  // Already parsed items (from Decrypt Code node)\n  if (input.json.title && input.json.url) {\n    allItems.push({ json: input.json });\n    continue;\n  }\n\n  // Raw RSS items (from CoinTelegraph XML node)\n  if (input.json.rss && input.json.rss.channel && input.json.rss.channel.item) {\n    const items = input.json.rss.channel.item;\n    for (const item of items) {\n      const cleanDesc = item.description\n        ? item.description.replace(/<[^>]*>/g, '').trim().slice(0, 500)\n        : '';\n      allItems.push({\n        json: {\n          title: item.title,\n          description: cleanDesc,\n          url: item.link,\n          author: item['dc:creator'] || 'Unknown',\n          published: item.pubDate\n        }\n      });\n    }\n  }\n}\n\nreturn allItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -592
+      ],
+      "id": "01f5d4d4-de12-46bb-8f55-0448c3708194",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const keywords = ['web3', 'dao', 'defi', 'nft', 'dapp', 'onchain', 'smart contract', 'protocol', 'startup', 'founder'];\nconst MAX_ITEMS = 10;\n\nconst filtered = $input.all().filter(item => {\n  const text = (item.json.title + ' ' + item.json.description).toLowerCase();\n  return keywords.some(k => text.includes(k));\n});\n\nreturn filtered.slice(0, MAX_ITEMS).map(item => ({ json: item.json }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1536,
+        -304
+      ],
+      "id": "94a2800e-b8af-4fc5-8969-2b0e505827df",
+      "name": "Code in JavaScript8"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1328,
+        -304
+      ],
+      "id": "c537e7d2-ac6b-42fa-be3c-f79e5d3490a8",
+      "name": "Wait",
+      "webhookId": "f24ecde9-ad5d-4986-8b57-6da998b03900"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1744,
+        -304
+      ],
+      "id": "50ca3987-f140-4f42-b562-d5fe10e69489",
+      "name": "Wait1",
+      "webhookId": "4c8a6386-fd37-4334-a6e3-8f1375e2bea8"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nconst url = item.url;\n\nlet exists = false;\n\ntry {\n  const response = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `https://api.airtable.com/v0/app8ykPG0P4knNdH7/tbldp1tosBeCksUnD?filterByFormula=FIND('${url}',{Source URL})`,\n    headers: {\n      'Authorization': 'Bearer patGcgUpXHjb1UkOQ.ee65000edaf26cd346586b04fa8bca56551c451671e445e450cc2080d1040b6f'\n    }\n  });\n  exists = response.records && response.records.length > 0;\n} catch(e) {\n  exists = false;\n}\n\nreturn {\n  json: {\n    score: item.score,\n    project_name: item.project_name,\n    pain_points: item.pain_points,\n    opportunities: item.opportunities,\n    title: item.title,\n    url: item.url,\n    author: item.author,\n    published: item.published,\n    is_duplicate: exists\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        -304
+      ],
+      "id": "6dbb2225-1530-48ef-ab4b-4bfaf26fdc05",
+      "name": "Code in JavaScript9",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "eb47f32b-0b45-4bfd-89a6-b6c36fa1e374",
+              "leftValue": "=={{ $json.is_duplicate }}",
+              "rightValue": "False",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2608,
+        -304
+      ],
+      "id": "d7a95b86-564f-485c-aaed-d2cdabe4fdee",
+      "name": "If2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "XML1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "XML2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "XML3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript8": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript9": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "538bcfd7-dd57-4912-a9cd-30e030101f7a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "400f02d0bfb87c0a4c80600793996234517a48376f67afd81d40d47daa0da6f3"
+  },
+  "id": "U15aks8oLLRK1dvV",
+  "tags": []
+}
